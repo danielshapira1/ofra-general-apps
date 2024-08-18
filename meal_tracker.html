@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Tracker</title>
+    <style>
+        :root {
+            --primary-color: #a8d8ea;
+            --secondary-color: #aa96da;
+            --accent-color: #fcbad3;
+            --background-color: #ffffd2;
+            --card-color: #ffffff;
+            --text-color: #5a5a5a;
+            --warning-color: #ff6b6b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .greeting {
+            background-color: var(--secondary-color);
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .container {
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        input, textarea, button {
+            font-size: 16px;
+            padding: 12px;
+            margin: 10px 0;
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        input, textarea {
+            background-color: #f0f0f0;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--secondary-color);
+        }
+        button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #8fc8db;
+        }
+        .meal-card {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 20px;
+            border-radius: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .meal-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        .meal-card h3 {
+            margin-top: 0;
+            color: var(--secondary-color);
+            font-size: 20px;
+        }
+        .meal-card p {
+            position: relative;
+            z-index: 1;
+        }
+        .date-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .date-selector button {
+            width: 40px;
+            padding: 5px;
+            font-size: 20px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: var(--card-color);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 20px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            width: 48%;
+        }
+    </style>
+</head>
+<body>
+    <div class="greeting">Hi Ofra the Capable!</div>
+    
+    <div class="container">
+        <h1>Meal Tracker</h1>
+        
+        <div class="date-selector">
+            <button onclick="changeDate(-1)">&#8592;</button>
+            <input type="date" id="mealDate">
+            <button onclick="changeDate(1)">&#8594;</button>
+        </div>
+
+        <div id="mealCard" class="meal-card" style="display: none;">
+            <!-- Meal data will be displayed here -->
+        </div>
+
+        <div id="mealInput" class="meal-input">
+            <h2>Record Meals</h2>
+            <textarea id="breakfast" placeholder="Breakfast"></textarea>
+            <textarea id="lunch" placeholder="Lunch"></textarea>
+            <textarea id="snacks" placeholder="Snacks"></textarea>
+            <textarea id="dinner" placeholder="Dinner"></textarea>
+            <textarea id="exercise" placeholder="Physical Activity"></textarea>
+            <button onclick="saveMeals()">Save Meals</button>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Meals</h2>
+            <textarea id="modal-breakfast" placeholder="Breakfast"></textarea>
+            <textarea id="modal-lunch" placeholder="Lunch"></textarea>
+            <textarea id="modal-snacks" placeholder="Snacks"></textarea>
+            <textarea id="modal-dinner" placeholder="Dinner"></textarea>
+            <textarea id="modal-exercise" placeholder="Physical Activity"></textarea>
+            <div class="modal-buttons">
+                <button onclick="saveModalChanges()">Save Changes</button>
+                <button onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mealsData = {};
+        let currentEditDate = '';
+
+        function saveMeals() {
+            const date = document.getElementById('mealDate').value;
+            if (date) {
+                mealsData[date] = {
+                    breakfast: document.getElementById('breakfast').value,
+                    lunch: document.getElementById('lunch').value,
+                    snacks: document.getElementById('snacks').value,
+                    dinner: document.getElementById('dinner').value,
+                    exercise: document.getElementById('exercise').value
+                };
+                localStorage.setItem('mealsData', JSON.stringify(mealsData));
+                alert('Meals saved successfully!');
+                displayMealCard(date);
+            } else {
+                alert('Please select a date.');
+            }
+        }
+
+        function displayMealCard(date) {
+            const mealCard = document.getElementById('mealCard');
+            const mealInput = document.getElementById('mealInput');
+            const meal = mealsData[date];
+            
+            if (meal) {
+                mealCard.innerHTML = `
+                    <h3>Meals for ${date}</h3>
+                    <p><strong>Breakfast:</strong> ${meal.breakfast}</p>
+                    <p><strong>Lunch:</strong> ${meal.lunch}</p>
+                    <p><strong>Snacks:</strong> ${meal.snacks}</p>
+                    <p><strong>Dinner:</strong> ${meal.dinner}</p>
+                    <p><strong>Physical Activity:</strong> ${meal.exercise}</p>
+                    <button onclick="openEditModal('${date}')">Edit</button>
+                `;
+                mealCard.style.display = 'block';
+                mealInput.style.display = 'none';
+            } else {
+                mealCard.style.display = 'none';
+                mealInput.style.display = 'block';
+                clearMealInputs();
+            }
+        }
+
+        function clearMealInputs() {
+            document.getElementById('breakfast').value = '';
+            document.getElementById('lunch').value = '';
+            document.getElementById('snacks').value = '';
+            document.getElementById('dinner').value = '';
+            document.getElementById('exercise').value = '';
+        }
+
+        function changeDate(days) {
+            const dateInput = document.getElementById('mealDate');
+            const currentDate = new Date(dateInput.value);
+            currentDate.setDate(currentDate.getDate() + days);
+            dateInput.value = currentDate.toISOString().split('T')[0];
+            displayMealCard(dateInput.value);
+        }
+
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('mealDate').value = today;
+        }
+
+        function openEditModal(date) {
+            currentEditDate = date;
+            const meal = mealsData[date];
+            document.getElementById('modal-breakfast').value = meal.breakfast;
+            document.getElementById('modal-lunch').value = meal.lunch;
+            document.getElementById('modal-snacks').value = meal.snacks;
+            document.getElementById('modal-dinner').value = meal.dinner;
+            document.getElementById('modal-exercise').value = meal.exercise;
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveModalChanges() {
+            mealsData[currentEditDate] = {
+                breakfast: document.getElementById('modal-breakfast').value,
+                lunch: document.getElementById('modal-lunch').value,
+                snacks: document.getElementById('modal-snacks').value,
+                dinner: document.getElementById('modal-dinner').value,
+                exercise: document.getElementById('modal-exercise').value
+            };
+            localStorage.setItem('mealsData', JSON.stringify(mealsData));
+            closeModal();
+            displayMealCard(currentEditDate);
+        }
+
+        window.onload = function() {
+            const storedMealsData = localStorage.getItem('mealsData');
+            if (storedMealsData) {
+                mealsData = JSON.parse(storedMealsData);
+            }
+            setDefaultDate();
+            const today = new Date().toISOString().split('T')[0];
+            displayMealCard(today);
+
+            document.getElementById('mealDate').addEventListener('change', function() {
+                displayMealCard(this.value);
+            });
+
+            // Close the modal when clicking outside of it
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('editModal')) {
+                    closeModal();
+                }
+            }
+
+            // Close the modal when clicking the close button
+            document.querySelector('.close').onclick = closeModal;
+        };
+    </script>
+</body>
+</html>
