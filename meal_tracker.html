@@ -115,46 +115,6 @@
             padding: 5px;
             font-size: 20px;
         }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: var(--card-color);
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 20px;
-        }
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .modal-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        .modal-buttons button {
-            width: 48%;
-        }
     </style>
 </head>
 <body>
@@ -184,25 +144,8 @@
         </div>
     </div>
 
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Edit Meals</h2>
-            <textarea id="modal-breakfast" placeholder="Breakfast"></textarea>
-            <textarea id="modal-lunch" placeholder="Lunch"></textarea>
-            <textarea id="modal-snacks" placeholder="Snacks"></textarea>
-            <textarea id="modal-dinner" placeholder="Dinner"></textarea>
-            <textarea id="modal-exercise" placeholder="Physical Activity"></textarea>
-            <div class="modal-buttons">
-                <button onclick="saveModalChanges()">Save Changes</button>
-                <button onclick="closeModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let mealsData = {};
-        let currentEditDate = '';
 
         function saveMeals() {
             const date = document.getElementById('mealDate').value;
@@ -235,7 +178,6 @@
                     <p><strong>Snacks:</strong> ${meal.snacks}</p>
                     <p><strong>Dinner:</strong> ${meal.dinner}</p>
                     <p><strong>Physical Activity:</strong> ${meal.exercise}</p>
-                    <button onclick="openEditModal('${date}')">Edit</button>
                 `;
                 mealCard.style.display = 'block';
                 mealInput.style.display = 'none';
@@ -267,34 +209,6 @@
             document.getElementById('mealDate').value = today;
         }
 
-        function openEditModal(date) {
-            currentEditDate = date;
-            const meal = mealsData[date];
-            document.getElementById('modal-breakfast').value = meal.breakfast;
-            document.getElementById('modal-lunch').value = meal.lunch;
-            document.getElementById('modal-snacks').value = meal.snacks;
-            document.getElementById('modal-dinner').value = meal.dinner;
-            document.getElementById('modal-exercise').value = meal.exercise;
-            document.getElementById('editModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-
-        function saveModalChanges() {
-            mealsData[currentEditDate] = {
-                breakfast: document.getElementById('modal-breakfast').value,
-                lunch: document.getElementById('modal-lunch').value,
-                snacks: document.getElementById('modal-snacks').value,
-                dinner: document.getElementById('modal-dinner').value,
-                exercise: document.getElementById('modal-exercise').value
-            };
-            localStorage.setItem('mealsData', JSON.stringify(mealsData));
-            closeModal();
-            displayMealCard(currentEditDate);
-        }
-
         window.onload = function() {
             const storedMealsData = localStorage.getItem('mealsData');
             if (storedMealsData) {
@@ -307,16 +221,6 @@
             document.getElementById('mealDate').addEventListener('change', function() {
                 displayMealCard(this.value);
             });
-
-            // Close the modal when clicking outside of it
-            window.onclick = function(event) {
-                if (event.target == document.getElementById('editModal')) {
-                    closeModal();
-                }
-            }
-
-            // Close the modal when clicking the close button
-            document.querySelector('.close').onclick = closeModal;
         };
     </script>
 </body>
